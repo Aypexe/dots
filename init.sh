@@ -26,7 +26,7 @@ check_error () {
 }
 
 install_build_essentials () {
-  echo -n "ensuring build-essential is installed"
+  echo -n "ensuring build-essential is installed... "
   sudo apt-get -qq update
   sudo apt-get -qq install -y build-essential gcc
   echo "done"
