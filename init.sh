@@ -25,6 +25,13 @@ check_error () {
   fi
 }
 
+install_build_essentials () {
+  echo -n "ensuring build-essential is installed"
+  sudo apt-get -qq update
+  sudo apt-get -qq install -y build-essential gcc
+  echo "done"
+}
+
 install_rust () {
   echo -n "installing rust... "
   if ! [ -n "$(command -v cargo)" ]; then
@@ -135,7 +142,7 @@ fi
 
 # installation
 if ! [[ $1 == "config" || $1 == "c" || $1 == "--config" || $1 == "-c" ]]; then
-  sudo apt-get -qq install -y build-essential gcc
+  install_build_essentials
   install_rust
   install_nu
   install_starship
