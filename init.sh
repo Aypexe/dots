@@ -1,6 +1,6 @@
 #!/bin/bash
-# author:	michael talarico
-# desc:		automated installation and configuration of commonly used CLI stack
+#author:   michael talarico
+#desc:		  automated installation and configuration of commonly used CLI stack
 
 get_pkg_mgr () {
   if [[ "$OSTYPE" == "linux-gnu"* ]]; then
@@ -28,7 +28,7 @@ check_error () {
 install_rust () {
   echo -n "installing rust... "
   if ! [ -n "$(command -v cargo)" ]; then
-    1>/dev/null curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y 
+    : $(curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y)
     source "$HOME/.cargo/env"
     check_error
   else 
@@ -64,7 +64,7 @@ install_nu () {
 install_starship () {
   echo -n "installing starship... "
   if ! [ -n "$(command -v starship)" ]; then
-    1>/dev/null curl -sS https://starship.rs/install.sh | sh -s -- -y
+    : $(curl -sS https://starship.rs/install.sh | sh -s -- -y)
     check_error
   else 
     echo "skipping"
@@ -135,6 +135,7 @@ fi
 
 # installation
 if ! [[ $1 == "config" || $1 == "c" || $1 == "--config" || $1 == "-c" ]]; then
+  sudo apt-get -qq install -y build-essential gcc
   install_rust
   install_nu
   install_starship

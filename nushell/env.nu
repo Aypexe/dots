@@ -104,4 +104,3 @@ mkdir ~/.cache/starship
 starship init nu | save -f ~/.cache/starship/init.nu
 
 $env.ZELLIJ_AUTO_EXIT = 'true'
-$env.ZELLIJ_AUTO_ATTACH = 'true'
