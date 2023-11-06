@@ -760,7 +760,9 @@ use ~/.cache/starship/init.nu
 
 let cargo_env = ( $nu.home-path | path join ".cargo/env" )
 let cargo_bin = ( $nu.home-path | path join ".cargo/bin" )
-$env.PATH = ($env.PATH | append $cargo_env | append $cargo_bin)
+let local_bin = ( $nu.home-path | path join ".local/bin" )
+let bob_bin = ( $nu.home-path | path join ".local/share/bob/nvim-bin" )
+$env.PATH = ( $env.PATH | append $cargo_env | append $cargo_bin | append $local_bin | append $bob_bin )
 
 # zellij
 def start_zellij [] {

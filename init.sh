@@ -1,6 +1,6 @@
 #!/bin/bash
-#author:   michael talarico
-#desc:		  automated installation and configuration of commonly used CLI stack
+#author:	michael talarico
+#desc:		automated installation and configuration of commonly used CLI stack
 
 get_pkg_mgr () {
   if [[ "$OSTYPE" == "linux-gnu"* ]]; then
@@ -13,7 +13,8 @@ get_pkg_mgr () {
   elif [[ "$OSTYPE" == "darwin"* ]]; then
     echo "brew"
   else
-    echo "unknown"
+    echo "unknown OS"
+    exit 1
   fi
 }
 
@@ -27,9 +28,15 @@ check_error () {
 
 install_build_essentials () {
   echo -n "ensuring build-essential is installed... "
-  sudo apt-get -qq update
-  sudo apt-get -qq install -y build-essential gcc
-  echo "done"
+  case $PKGMGR in
+      apt)
+        sudo apt-get -qq update
+        sudo apt-get -qq install -y build-essential gcc 
+        ;;
+      *)
+        echo "skipping build essential install"
+  esac
+  check_error
 }
 
 install_rust () {
@@ -46,7 +53,7 @@ install_rust () {
 install_nu () {
   echo -n "installing nu... "
   if ! [ -n "$(command -v nu)" ]; then
-    case $pkgmgr in
+    case $PKGMGR in
       yum)
         sudo yum install -y -q libxcb openssl-devel libX11-devel
         ;;
@@ -106,6 +113,20 @@ install_helix () {
   fi
 }
 
+install_lvim () {
+  echo -n "installing nvim... "
+  if ! [ -n "$(command -v nvim)" ]; then
+    cargo install --quiet bob-nvim
+    1>/dev/null bob use stable
+  fi
+  if ! [ -n "$(command -v lvim)" ]; then
+    : $(LV_BRANCH='release-1.3/neovim-0.9' bash <(curl -s https://raw.githubusercontent.com/LunarVim/LunarVim/release-1.3/neovim-0.9/utils/installer/install.sh -- -y))
+    check_error
+  else
+    echo "skipping"
+  fi
+}
+
 config_nu () {
   echo -n "configuring nu... "
   nupath=$(which nu)
@@ -115,7 +136,7 @@ config_nu () {
   fi
   [ -f $HOME/.config/nushell/history.txt ] && cp $HOME/.config/nushell/history.txt /tmp/nushell_history.txt
   rm -rf $HOME/.config/nushell/
-  cp -r ./nushell/ $HOME/.config/nushell/
+  cp -r $SCRIPTPATH/nushell/ $HOME/.config/nushell/
   [ -f /tmp/nushell_history.txt ] && cp /tmp/nushell_history.txt $HOME/.config/nushell/history.txt
   check_error
 }
@@ -123,13 +144,22 @@ config_nu () {
 config_zellij () {
   echo -n "configuring zellij... "
   rm -rf $HOME/.config/zellij/
-  cp -r ./zellij/ $HOME/.config/zellij/
+  cp -r $SCRIPTPATH/zellij/ $HOME/.config/zellij/
   check_error
 }
 
 # prereqs
-pkgmgr=$(get_pkg_mgr)
 mkdir -p $HOME/.config
+
+PKGMGR=$(get_pkg_mgr)
+SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+
+# elevate priviledges
+while ! echo "$PW" | sudo -S -v > /dev/null 2>&1; do
+    read -s -p "password: " PW
+    echo
+done
+
 
 if [[ $1 == "help" || $1 == "--help" || $1 == "-h" ]]; then
   echo "init.sh [ config | install ]"
@@ -148,6 +178,7 @@ if ! [[ $1 == "config" || $1 == "c" || $1 == "--config" || $1 == "-c" ]]; then
   install_starship
   install_zellij
   install_helix
+  install_lvim
   install_utilities
 fi
 
