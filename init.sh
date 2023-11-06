@@ -130,7 +130,9 @@ install_lvim () {
 config_nu () {
   echo -n "configuring nu... "
   nupath=$(which nu)
-  if getent passwd $(whoami) | grep -qv $(which nu); then
+  if getent passwd $(whoami) | grep -q "$nupath"; then
+    echo -n "already default shell... "
+  else
     grep $nupath /etc/shells || echo $nupath | sudo tee -a /etc/shells > /dev/null
     chsh -s $nupath
   fi
@@ -138,7 +140,7 @@ config_nu () {
   rm -rf $HOME/.config/nushell/
   cp -r $SCRIPTPATH/nushell/ $HOME/.config/nushell/
   [ -f /tmp/nushell_history.txt ] && cp /tmp/nushell_history.txt $HOME/.config/nushell/history.txt
-  check_error
+  echo "done"
 }
 
 config_zellij () {
