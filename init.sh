@@ -130,7 +130,7 @@ install_lvim () {
 config_nu () {
   echo -n "configuring nu... "
   nupath=$(which nu)
-  if [[ $(getent passwd $(whoami) | awk -F: '{ print $7 }') != $nupath ]]; then
+  if getent passwd $(whoami) | grep -qv $(which nu); then
     grep $nupath /etc/shells || echo $nupath | sudo tee -a /etc/shells > /dev/null
     chsh -s $nupath
   fi
