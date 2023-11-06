@@ -120,7 +120,7 @@ install_lvim () {
     1>/dev/null bob use stable
   fi
   if ! [ -n "$(command -v lvim)" ]; then
-    : $(LV_BRANCH='release-1.3/neovim-0.9' bash <(curl -s https://raw.githubusercontent.com/LunarVim/LunarVim/release-1.3/neovim-0.9/utils/installer/install.sh -- -y))
+    : $(LV_BRANCH='release-1.3/neovim-0.9' bash <(curl -sS https://raw.githubusercontent.com/LunarVim/LunarVim/release-1.3/neovim-0.9/utils/installer/install.sh) -- --no-install-dependencies)
     check_error
   else
     echo "skipping"
@@ -130,7 +130,7 @@ install_lvim () {
 config_nu () {
   echo -n "configuring nu... "
   nupath=$(which nu)
-  if [ $(getent passwd $(whoami) | awk -F: '{ print $7 }') != $nupath ]; then
+  if [ "$(getent passwd $(whoami) | awk -F: '{ print $7 }')" != $nupath ]; then
     grep $nupath /etc/shells || echo $nupath | sudo tee -a /etc/shells > /dev/null
     chsh -s $nupath
   fi
